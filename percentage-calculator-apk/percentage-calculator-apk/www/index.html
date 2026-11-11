@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Percentage calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1f44;--panel:#0f2a5c;--ink:#eaf1ff;--muted:#a3b8df;--line:#2d4d8f;--field:#c3c8ce;--mark:#c3c8ce;--markink:#06142e;
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0a1f44;--panel:#0f2a5c;--ink:#eaf1ff;--muted:#a3b8df;--line:#2d4d8f;--field:#c3c8ce;--mark:#c3c8ce;--markink:#06142e}
+}
+:root[data-theme="dark"]{--bg:#0a1f44;--panel:#0f2a5c;--ink:#eaf1ff;--muted:#a3b8df;--line:#2d4d8f;--field:#c3c8ce;--mark:#c3c8ce;--markink:#06142e}
+*,*::before,*::after{box-sizing:inherit}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1rem;line-height:1.4;-webkit-tap-highlight-color:transparent}
+main{width:100%;max-width:480px;margin:0 auto;padding:max(18px,env(safe-area-inset-top,0px)) 16px max(24px,env(safe-area-inset-bottom,0px))}
+h1{font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;font-weight:700;font-size:clamp(1.6rem,7.5vw,2.1rem);letter-spacing:-.02em;line-height:1.1;margin:0 0 18px;text-align:center}
+.lede{color:var(--muted);font-size:1rem;margin:0 0 18px}
+.calc{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+.fields{display:grid;gap:12px}
+.f{display:block}
+.f span{display:block;font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;font-weight:500;font-size:1.0625rem;margin:0 0 5px}
+.f input{display:block;width:100%;height:56px;font-family:"Figtree",system-ui,sans-serif;font-weight:600;font-size:1.5rem;color:var(--markink);background:var(--field);border:2px solid var(--field);border-radius:12px;padding:0 14px}
+.f input::placeholder{color:var(--markink);opacity:.45;font-weight:400}
+.f input:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-color:var(--ink)}
+button{display:block;width:100%;height:52px;margin-top:14px;font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;font-weight:700;font-size:1.5rem;color:var(--markink);background:#ffbf00;border:2px solid #ffbf00;border-radius:12px;cursor:pointer;touch-action:manipulation}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.out{margin-top:16px;min-height:5.5rem;padding-top:16px;border-top:1px solid var(--line)}
+output{display:inline-block;font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;font-weight:700;font-size:clamp(2.2rem,12vw,3rem);line-height:1.15;letter-spacing:-.02em;padding:0 .3em;border-radius:8px;background:var(--mark);color:var(--markink);border:3px solid #d32f2f;max-width:100%;overflow-wrap:anywhere}
+.out:has(output.empty){text-align:right}
+output.empty{background:transparent;color:#ffbf00;border:0;font-weight:500;font-size:12px}
+output.err{background:transparent;color:var(--ink);font-size:1.125rem;font-weight:600;border:2px solid var(--ink)}
+.ans{display:inline-block;text-align:center;max-width:100%}
+.who{display:block;margin:0 0 2px;font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;font-weight:700;font-size:1.125rem;color:#ff5252}
+.note{display:block;color:var(--muted);font-size:1rem;margin-top:6px}
+.left{color:var(--ink);font-weight:600;font-size:1.125rem}
+.lnum{color:#3ddc84;font-weight:700}
+@media (prefers-reduced-motion:no-preference){output{transition:background-color .15s}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Percentage calculator</h1>
+
+  <section class="calc" aria-label="What is X percent of Y">
+    <div class="fields">
+      <label class="f"><span>What is (%)</span><input id="a1" type="number" step="any" inputmode="decimal" placeholder="15"></label>
+      <label class="f"><span>% of number</span><input id="b1" type="number" step="any" inputmode="decimal" placeholder="200"></label>
+    </div>
+    <button id="c1" type="button" aria-label="Clear numbers">C</button>
+    <div class="out" aria-live="polite"><div class="ans"><span class="who" id="w1"></span><output id="o1"></output></div><span class="note" id="n1"></span><span class="note left" id="l1"></span><span class="note left" id="f1"></span><span class="note left" id="t1"></span></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  function fmt(n){return (Math.round(n*10000)/10000).toLocaleString('en-US',{maximumFractionDigits:4})}
+  function fmt2(n){return n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2})}
+  function run(){
+    var av=$('a1').value,bv=$('b1').value,o=$('o1'),n=$('n1'),l=$('l1'),w=$('w1'),f=$('f1'),t=$('t1'),PRICE=6;
+    var a=parseFloat(av),b=parseFloat(bv);
+    if(av===''||bv===''||isNaN(a)||isNaN(b)){o.textContent='Created by Zamir';o.className='empty';n.textContent='';l.textContent='';f.textContent='';t.textContent='';w.textContent='';return}
+    o.textContent=fmt(a/100*b);o.className='';w.textContent='To Driver';n.textContent=fmt(a)+'% of '+fmt(b);
+    var left=b-a/100*b;
+    var base=Math.abs(left);
+    l.innerHTML=(left>=0?'From '+fmt(b)+': ':'Over '+fmt(b)+' by: ')+'(To Owner <span class="lnum">'+fmt(base)+'</span>) /2=<span class="lnum">'+fmt(base/2)+'</span>';
+    var k=b/7000,miles=1500*k,gal=240*k,cost=gal*PRICE;
+    f.innerHTML='Fuel: '+fmt2(miles)+' mi, '+fmt2(gal)+' gal \u00d7 $'+fmt(PRICE)+' = <span class="lnum">$'+fmt2(cost)+'</span>';
+    t.innerHTML='Total (To Owner - Fuel): '+fmt2(base)+'-'+fmt2(cost)+'=<span class="lnum">$'+fmt2(base-cost)+'</span>';
+  }
+  $('c1').addEventListener('click',function(){$('a1').value='';$('b1').value='';run();$('a1').focus()});
+  document.addEventListener('input',run);
+  run();
+})();
+</script>
+</body>
+</html>
